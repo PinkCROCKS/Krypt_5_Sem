@@ -1,4 +1,4 @@
-#include "TestSymmetricContext.h"
+#include "../TestSymmetricContext.h"
 
 int main(){
     TestSymmetricContext tester;

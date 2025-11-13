@@ -1,7 +1,7 @@
 #ifndef INC_1_LAB_DES_H
 #define INC_1_LAB_DES_H
 
-#include "Feystel.h"
+#include "../../FEYSTEL/include/Feystel.h"
 
 class DES : public SymmetricAlgorithm {
 private:
