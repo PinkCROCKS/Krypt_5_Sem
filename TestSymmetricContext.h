@@ -1,7 +1,7 @@
 #ifndef INC_1_LAB_TESTSYMMETRICCONTEXT_H
 #define INC_1_LAB_TESTSYMMETRICCONTEXT_H
 
-#include "SymmetricContext.h"
+#include "libs/SymmetricContext/include/SymmetricContext.h"
 #include <cassert>
 #include <iostream>
 #include <string>

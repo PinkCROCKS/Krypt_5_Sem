@@ -1,0 +1,2 @@
+add_library(number_functions src/num_functions.cpp)
+target_include_directories(number_functions PUBLIC include)

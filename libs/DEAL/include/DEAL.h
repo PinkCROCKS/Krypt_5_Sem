@@ -1,7 +1,7 @@
 #ifndef INC_1_LAB_DEAL_H
 #define INC_1_LAB_DEAL_H
 
-#include "DES.h"
+#include "../../DES/include/DES.h"
 
 const INFO key_for_des = {std::byte{0x12},
                                   std::byte{0x34},
