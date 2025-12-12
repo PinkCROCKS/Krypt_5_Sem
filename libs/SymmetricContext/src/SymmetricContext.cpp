@@ -693,6 +693,10 @@ size_t SymmetricAlgorithm::get_block_size() {
     return block_size;
 }
 
+void SymmetricAlgorithm::set_block_size(size_t size) {
+    block_size = size;
+}
+
 INFO KeyOnlyAlgorithm::encrypt(const INFO &data) {
     INFO encrypted = data;
     for (size_t i = 0; i < encrypted.size(); ++i) {

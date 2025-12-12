@@ -5,5 +5,6 @@
 #include "DEAL.h"
 
 int main(){
+    DEal
     return 0;
 }

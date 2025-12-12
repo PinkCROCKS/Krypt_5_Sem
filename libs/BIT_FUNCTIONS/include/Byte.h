@@ -25,6 +25,7 @@ namespace bit_op{
     INFO xor_vectors(const INFO &a, const INFO &b, size_t size);
 
     void print_permissions(const INFO& permissions);
+    void print_permissions_by_16(const INFO& permissions);
 
     INFO cycleRotateBitsLeft(const INFO& data, size_t n, size_t size);
     INFO cycleRotateBitsRight(const INFO& data, size_t n, size_t size);

@@ -1,9 +1,20 @@
 #include "../include/num_functions.h"
 
 BOOSTED_INT fast_pow_mod(const BOOSTED_INT &a, const BOOSTED_INT &deg, const BOOSTED_INT &mod) {
-    // Проверка особых случаев
     if (mod == 0) {
-        throw std::invalid_argument("Modulus cannot be zero");
+        BOOSTED_INT result = 1;
+        BOOSTED_INT base = a;
+        BOOSTED_INT exponent = deg;
+
+        while (exponent > 0) {
+            if (exponent & 1) {
+                result = (result * base);
+            }
+            base = (base * base);
+            exponent >>= 1;
+        }
+
+        return result;
     }
     if (mod == 1) {
         return 0;
@@ -17,7 +28,6 @@ BOOSTED_INT fast_pow_mod(const BOOSTED_INT &a, const BOOSTED_INT &deg, const BOO
     if (deg < 0) {
         throw std::invalid_argument("Negative exponent not supported");
     }
-
     BOOSTED_INT result = 1;
     BOOSTED_INT base = a % mod;
     BOOSTED_INT exponent = deg;

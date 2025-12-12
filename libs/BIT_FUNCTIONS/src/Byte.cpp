@@ -1,3 +1,4 @@
+#include <iomanip>
 #include "Byte.h"
 
 std::byte bit_op::get_bit(size_t number_of_bit, std::byte byte) {
@@ -72,6 +73,19 @@ void bit_op::print_permissions(const INFO& permissions) {
     std::cout << std::endl;
 }
 
+void bit_op::print_permissions_by_16(const INFO &permissions) {
+    std::cout << std::hex << std::uppercase;
+
+    for (size_t i = 0; i < permissions.size(); ++i) {
+        std::cout << std::setw(2) << std::setfill('0')
+                  << static_cast<int>(permissions[i]) << " ";
+    }
+    if (permissions.size() % 16 != 0) {
+        std::cout << std::endl;
+    }
+    std::cout << std::dec << std::nouppercase << std::setfill(' ');
+}
+
 INFO bit_op::cycleRotateBitsLeft(const INFO &data, size_t n, size_t size) {
     n = n % size;
     std::vector<size_t> p;
@@ -96,7 +110,7 @@ INFO bit_op::connect_arrays(const INFO &first, size_t size_a_bits, const INFO &s
     if(size_a_bits > first.size() * 8 || size_b_bits > second.size() * 8) {
         throw std::runtime_error("incorrect number bits");
     }
-    std::vector<std::byte> concat{first};
+    INFO concat{first};
     concat.insert(concat.end(), second.begin(), second.end());
     std::vector<size_t> p;
     for (size_t i = 0; i < size_a_bits; ++i) {

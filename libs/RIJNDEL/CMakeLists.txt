@@ -1,0 +1,3 @@
+add_library(rijndel src/RIJNDEL.cpp)
+target_link_libraries(rijndel PUBLIC bits_functions symmetric_context feistel_network galua)
+target_include_directories(rijndel PUBLIC include)

@@ -50,10 +50,7 @@ public:
     virtual INFO encrypt(const INFO& data) = 0;
     virtual INFO decrypt(const INFO& data) = 0;
     size_t get_block_size();
-
-    void set_block_size(size_t size) {
-        block_size = size;
-    }
+    void set_block_size(size_t size);
 };
 
 class KeyOnlyAlgorithm : public SymmetricAlgorithm {
