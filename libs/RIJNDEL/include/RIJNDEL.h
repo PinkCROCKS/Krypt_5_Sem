@@ -5,6 +5,7 @@
 #include "../../GALUA_FUNCTIONS/include/Galua.h"
 #include <cstring>
 #include <array>
+#include <memory>
 
 const std::byte S_box_constant = std::byte{0x63};
 const std::byte inversed_S_box_constant = std::byte{0x05};
@@ -21,6 +22,7 @@ public:
     std::byte take_Sbox_byte(size_t number) const;
     std::byte take_Sbox_byte(std::byte number) const;
     std::byte take_invSbox_byte(size_t number) const;
+    std::byte take_invSbox_byte(std::byte number) const;
     void printSbox() const;
     void printInvSbox() const;
 };
@@ -58,9 +60,10 @@ private:
 public:
     RIJNDAELRound(std::shared_ptr<SboxGenerator> Sbox_generator, std::shared_ptr<RconGenerator> Rcon_generator, const std::byte& mod);
     STATE encryption_conversion(const STATE& data, const INFO& round_key);
+    STATE decryption_conversion(const STATE& data, const INFO& round_key);
 };
 
-class Rijndael : SymmetricAlgorithm {
+class Rijndael : public SymmetricAlgorithm {
 private:
     INFO key;
     std::shared_ptr<SboxGenerator> Sbox_generator;

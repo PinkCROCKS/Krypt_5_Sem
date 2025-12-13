@@ -31,7 +31,8 @@ void SboxGenerator::initialize_Sbox() {
 void SboxGenerator::initialize_invSbox() {
     for (int i = 0; i < 256; i++) {
         std::byte b{static_cast<unsigned char>(i)};
-        auto sum = GaloisFieldService::add(b, GaloisFieldService::cyclic_shift_left(b, 1));
+        std::byte sum{0};
+        sum = GaloisFieldService::add(sum, GaloisFieldService::cyclic_shift_left(b, 1));
         sum = GaloisFieldService::add(sum, GaloisFieldService::cyclic_shift_left(b, 3));
         sum = GaloisFieldService::add(sum, GaloisFieldService::cyclic_shift_left(b, 6));
         sum = GaloisFieldService::add(sum, inversed_S_box_constant);
@@ -44,6 +45,11 @@ std::byte SboxGenerator::take_invSbox_byte(size_t number) const {
         throw std::out_of_range("S-box index must be between 0 and 255");
     }
     return invSbox[number];
+}
+
+std::byte SboxGenerator::take_invSbox_byte(std::byte number) const {
+    auto num = static_cast<uint8_t>(number);
+    return invSbox[num];
 }
 
 std::byte SboxGenerator::take_Sbox_byte(size_t number) const {
@@ -285,9 +291,21 @@ STATE RIJNDAELRound::encryption_conversion(const STATE &data, const INFO &round_
     return GaloisFieldService::addRoundKey(result, round_key);
 }
 
+STATE RIJNDAELRound::decryption_conversion(const STATE &data, const INFO &round_key) {
+    STATE result(data);
+    result = GaloisFieldService::invShiftRows(result);
+    for (size_t i = 0; i < data.size(); i++){
+        for(size_t j = 0; j < data[0].size(); ++j) {
+            result[i][j] = Sbox_generator->take_invSbox_byte(result[i][j]);
+        }
+    }
+    result = GaloisFieldService::addRoundKey(result, round_key);
+    result = GaloisFieldService::invmixColumns(result, mod);
+    return result;
+}
+
 INFO Rijndael::encrypt(const INFO &data) {
     STATE state = GaloisFieldService::make_state(data, Nb / 4);
-//    print_numeric_key(round_keys[0]);
     state = GaloisFieldService::addRoundKey(state, round_keys[0]);
     size_t j = 1;
     for (; j < amount_of_rounds; j++){
@@ -300,10 +318,22 @@ INFO Rijndael::encrypt(const INFO &data) {
     }
     state = GaloisFieldService::ShiftRows(state);
     state = GaloisFieldService::addRoundKey(state, round_keys[j]);
-    print_state(state);
     return GaloisFieldService::make_INFO(state, Nb / 4);
 }
 
 INFO Rijndael::decrypt(const INFO &data) {
-    return data;
+    STATE state = GaloisFieldService::make_state(data, Nb / 4);
+    state = GaloisFieldService::addRoundKey(state, round_keys[amount_of_rounds]);
+    size_t j = amount_of_rounds - 1;
+    for (; j >= 1; j-- ) {
+        state = encrypt_round->decryption_conversion(state, round_keys[j]);
+    }
+    state = GaloisFieldService::invShiftRows(state);
+    for (size_t i = 0; i < state.size(); i++){
+        for(size_t j = 0; j < state[0].size(); ++j) {
+            state[i][j] = Sbox_generator->take_invSbox_byte(state[i][j]);
+        }
+    }
+    state = GaloisFieldService::addRoundKey(state, round_keys[0]);
+    return GaloisFieldService::make_INFO(state, Nb / 4);
 }

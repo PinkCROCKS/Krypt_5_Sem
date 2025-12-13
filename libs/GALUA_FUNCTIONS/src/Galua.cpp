@@ -255,9 +255,9 @@ STATE GaloisFieldService::make_state(const INFO &data, size_t amount_of_bytes_in
 
 INFO GaloisFieldService::make_INFO(const STATE& data, size_t amount_of_bytes_in_line) {
     INFO result(4 * amount_of_bytes_in_line, std::byte{0x00});
-    for (size_t i = 0; i < 4; i++){
-        for (size_t j = 0; j < amount_of_bytes_in_line; j++){
-            result[i * amount_of_bytes_in_line + j] = data[i][j];
+    for (size_t j = 0; j < amount_of_bytes_in_line; j++){
+        for (size_t i = 0; i < 4; i++) {
+            result[j * 4 + i] = data[i][j];
         }
     }
     return result;
@@ -277,4 +277,17 @@ void print_state(const STATE &state) {
     }
 
     std::cout << std::dec << std::setfill(' ') << std::nouppercase;
+}
+
+void print_state_in_line(const STATE &state) {
+    size_t num_rows = state.size();
+    size_t num_cols = state[0].size();
+    std::cout << std::hex << std::uppercase << std::setfill('0');
+    for (size_t col = 0; col < num_cols; ++col) {
+        for (size_t row = 0; row < num_rows; ++row) {
+            std::cout << "0x" << std::setw(2)
+                      << static_cast<int>(state[row][col]) << " ";
+        }
+    }
+    std::cout << std::dec << std::setfill(' ') << std::nouppercase << std::endl;
 }

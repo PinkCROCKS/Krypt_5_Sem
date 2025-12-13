@@ -10,7 +10,7 @@ void TestSymmetricContext::setupTestAlgorithm() {
     testKey = {std::byte(119), std::byte(99), std::byte(111), std::byte(30),
                           std::byte(241), std::byte(164), std::byte(43), std::byte(34)};
     testIV = {std::byte{165}, std::byte{0x23}, std::byte{0x45}, std::byte{0x67},
-              std::byte{0x89}, std::byte{0xAB}, std::byte{0xCD}, std::byte{0xEF}};;
+              std::byte{0x89}, std::byte{0xAB}, std::byte{0xCD}, std::byte{0xEF}};
     testAlgorithm = std::make_shared<KeyOnlyAlgorithm>(testKey);
 }
 

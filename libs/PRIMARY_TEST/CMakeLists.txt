@@ -1,2 +1,3 @@
-add_library(primary_tests src/primary_tests.cpp)
+add_library(primary_tests SHARED src/primary_tests.cpp)
 target_include_directories(primary_tests PUBLIC include)
+target_link_libraries(primary_tests PUBLIC number_functions)

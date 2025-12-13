@@ -1,3 +1,3 @@
-add_library(feistel_network src/Feystel.cpp)
+add_library(feistel_network SHARED src/Feystel.cpp)
 target_link_libraries(feistel_network PUBLIC symmetric_context)
 target_include_directories(feistel_network PUBLIC include)

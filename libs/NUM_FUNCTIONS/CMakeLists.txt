@@ -1,2 +1,3 @@
-add_library(number_functions src/num_functions.cpp)
+add_library(number_functions SHARED src/num_functions.cpp)
 target_include_directories(number_functions PUBLIC include)
+#target_link_libraries(number_functions PUBLIC number_functions)

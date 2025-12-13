@@ -83,7 +83,7 @@ void bit_op::print_permissions_by_16(const INFO &permissions) {
     if (permissions.size() % 16 != 0) {
         std::cout << std::endl;
     }
-    std::cout << std::dec << std::nouppercase << std::setfill(' ');
+    std::cout << std::dec << std::nouppercase << std::setfill(' ') << std::endl;
 }
 
 INFO bit_op::cycleRotateBitsLeft(const INFO &data, size_t n, size_t size) {

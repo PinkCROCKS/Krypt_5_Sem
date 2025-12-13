@@ -42,5 +42,6 @@ public:
 };
 
 void print_state(const STATE& state);
+void print_state_in_line(const STATE &state);
 
 #endif //CRYPT_GALUA_H

@@ -6,15 +6,33 @@
 #include "../libs/GALUA_FUNCTIONS/include/Galua.h"
 
 int main(){
-    INFO data{std::byte{0x32}, std::byte{0x43}, std::byte{0xf6}, std::byte{0xa8},
-              std::byte{0x88}, std::byte{0x5a}, std::byte{0x30}, std::byte{0x8d},
-              std::byte{0x31}, std::byte{0x31}, std::byte{0x98}, std::byte{0xa2},
-              std::byte{0xe0},std::byte{0x37}, std::byte{0x07}, std::byte{0x34}};
+    INFO data{std::byte{0x00}, std::byte{0x11}, std::byte{0x22}, std::byte{0x33},
+              std::byte{0x44}, std::byte{0x55}, std::byte{0x66}, std::byte{0x77},
+              std::byte{0x88}, std::byte{0x99}, std::byte{0xaa}, std::byte{0xbb},
+              std::byte{0xcc},std::byte{0xdd}, std::byte{0xee}, std::byte{0xff}};
     INFO key = {
-            std::byte{0x2B}, std::byte{0x7E}, std::byte{0x15}, std::byte{0x16},
-            std::byte{0x28}, std::byte{0xAE}, std::byte{0xD2}, std::byte{0xA6},
-            std::byte{0xAB}, std::byte{0xF7}, std::byte{0x15}, std::byte{0x88},
-            std::byte{0x09}, std::byte{0xCF}, std::byte{0x4F}, std::byte{0x3C},
+            std::byte{0x00}, std::byte{0x01}, std::byte{0x02}, std::byte{0x03},
+            std::byte{0x04}, std::byte{0x05}, std::byte{0x06}, std::byte{0x07},
+            std::byte{0x08}, std::byte{0x09}, std::byte{0x0a}, std::byte{0x0b},
+            std::byte{0x0c}, std::byte{0x0d}, std::byte{0x0e}, std::byte{0x0f},
+    };
+    INFO key2 = {
+            std::byte{0x00}, std::byte{0x01}, std::byte{0x02}, std::byte{0x03},
+            std::byte{0x04}, std::byte{0x05}, std::byte{0x06}, std::byte{0x07},
+            std::byte{0x08}, std::byte{0x09}, std::byte{0x0a}, std::byte{0x0b},
+            std::byte{0x0c}, std::byte{0x0d}, std::byte{0x0e}, std::byte{0x0f},
+            std::byte{0x10}, std::byte{0x11}, std::byte{0x12}, std::byte{0x13},
+            std::byte{0x14}, std::byte{0x15}, std::byte{0x16}, std::byte{0x17},
+    };
+    INFO key3 = {
+            std::byte{0x00}, std::byte{0x01}, std::byte{0x02}, std::byte{0x03},
+            std::byte{0x04}, std::byte{0x05}, std::byte{0x06}, std::byte{0x07},
+            std::byte{0x08}, std::byte{0x09}, std::byte{0x0a}, std::byte{0x0b},
+            std::byte{0x0c}, std::byte{0x0d}, std::byte{0x0e}, std::byte{0x0f},
+            std::byte{0x10}, std::byte{0x11}, std::byte{0x12}, std::byte{0x13},
+            std::byte{0x14}, std::byte{0x15}, std::byte{0x16}, std::byte{0x17},
+            std::byte{0x18}, std::byte{0x19}, std::byte{0x1a}, std::byte{0x1b},
+            std::byte{0x1c}, std::byte{0x1d}, std::byte{0x1e}, std::byte{0x1f},
     };
 //    RIJNDAELKeysGenerator generator;
 //    auto o = generator.make_round_keys(key, 12);
@@ -45,7 +63,17 @@ int main(){
 //    RconGenerator r(AESmod);
 //    RIJNDAELKeysGenerator generator(std::make_shared<SboxGenerator>(s), std::make_shared<RconGenerator>(r));
 //    generator.print_all_round_keys(generator.make_round_keys(key, 10, 16), 128);
-    Rijndael r{16, AESmod, key};
-    r.encrypt(data);
+    Rijndael r{16, AESmod, key3};
+    INFO testIV = {std::byte{165}, std::byte{0x23}, std::byte{0x45}, std::byte{0x67},
+              std::byte{0x89}, std::byte{0xAB}, std::byte{0xCD}, std::byte{0xEF}};
+    std::optional<INFO> t(testIV);
+    std::shared_ptr<SymmetricAlgorithm> y = std::make_shared<Rijndael>(r);
+    SymmetricEncryptingContext context(PCBC, PKCS7, t, y);
+    std::filesystem::path inputPath = "opu.mp4";
+    std::filesystem::path encryptedOutput = inputPath.stem().string() + "_encrypted.bin";
+    std::filesystem::path decryptedOutput = inputPath.stem().string() + "_decrypted" + inputPath.extension().string();
+    auto temp = context.encrypt(inputPath, encryptedOutput);
+    temp.get();
+    context.decrypt(encryptedOutput, decryptedOutput).get();
     return 0;
 }
