@@ -1,4 +1,4 @@
-#include "../include/RIJNDEL.h"
+#include "../include/RIJNDAEL.h"
 
 void print_numeric_key(const INFO& round_key) {
     for(size_t i = 0; i < round_key.size(); ++i) {
@@ -123,15 +123,15 @@ RconGenerator::RconGenerator(const std::byte &polynom) : mod(polynom){
 
 void RconGenerator::initialize_Rcon() {
     Rcon[0] = std::byte{0x01};
-    for (size_t i = 1; i < 14; i++){
+    for (size_t i = 1; i < 20; i++){
         Rcon[i] = GaloisFieldService::multiply(Rcon[i - 1], std::byte{2}, mod);
     }
 }
 
 std::byte RconGenerator::take_Rcon_byte(size_t number) const {
-    if (number >= 14) {
-        throw std::out_of_range("Rcon index must be between 0 and 13");
-    }
+//    if (number >= 14) {
+//        throw std::out_of_range("Rcon index must be between 0 and 13");
+//    }
     return Rcon[number];
 }
 
@@ -166,7 +166,8 @@ std::vector<INFO> RIJNDAELKeysGenerator::make_round_keys(const INFO &key,
             for (size_t j = 0; j < 4; ++j) {
                 temp[j] = Sbox_generator->take_Sbox_byte(temp[j]);
             }
-            INFO rcon_value = Rcon_generator->take_Rcon_row(i / Nk - 1);
+            auto y = i / Nk - 1;
+            INFO rcon_value = Rcon_generator->take_Rcon_row(y);
             temp = bit_op::xor_vectors(temp, rcon_value, 4);
         }
         else if (Nk > 6 && i % Nk == 4) {
@@ -336,4 +337,47 @@ INFO Rijndael::decrypt(const INFO &data) {
     }
     state = GaloisFieldService::addRoundKey(state, round_keys[0]);
     return GaloisFieldService::make_INFO(state, Nb / 4);
+}
+
+Rijndael::Rijndael(size_t b_size, const std::byte &mod, const INFO &key) : key(key), mod(mod){
+    block_size = b_size;
+    Sbox_generator = std::make_shared<SboxGenerator>(mod);
+    Rcon_generator = std::make_shared<RconGenerator>(mod);
+    RIJNDAELKeysGenerator generator(Sbox_generator, Rcon_generator);
+    RIJNDAELRound round(Sbox_generator, Rcon_generator, mod);
+    encrypt_round = std::make_shared<RIJNDAELRound>(round);
+    key_generator = std::make_shared<RIJNDAELKeysGenerator>(generator);
+    if (key.size() == 32 || block_size == 32) {
+        amount_of_rounds = 14;
+    } else if (block_size == 24 || key.size() == 24) {
+        amount_of_rounds = 12;
+    } else if (block_size == 16 && key.size() == 16) {
+        amount_of_rounds = 10;
+    } else {
+        throw std::invalid_argument("incorrect block size or key size");
+    }
+    Nb = block_size;
+    round_keys = key_generator->make_round_keys(key, amount_of_rounds, Nb);
+}
+
+Rijndael::Rijndael(size_t b_size, size_t number_of_polynom, const INFO &key) : key(key) {
+    mod = GaloisFieldService::take_polynom_by_number(number_of_polynom);
+    block_size = b_size;
+    Sbox_generator = std::make_shared<SboxGenerator>(mod);
+    Rcon_generator = std::make_shared<RconGenerator>(mod);
+    RIJNDAELKeysGenerator generator(Sbox_generator, Rcon_generator);
+    RIJNDAELRound round(Sbox_generator, Rcon_generator, mod);
+    encrypt_round = std::make_shared<RIJNDAELRound>(round);
+    key_generator = std::make_shared<RIJNDAELKeysGenerator>(generator);
+    if (key.size() == 32 || block_size == 32) {
+        amount_of_rounds = 14;
+    } else if (block_size == 24 || key.size() == 24) {
+        amount_of_rounds = 12;
+    } else if (block_size == 16 && key.size() == 16) {
+        amount_of_rounds = 10;
+    } else {
+        throw std::invalid_argument("incorrect block size or key size");
+    }
+    Nb = block_size;
+    round_keys = key_generator->make_round_keys(key, amount_of_rounds, Nb);
 }

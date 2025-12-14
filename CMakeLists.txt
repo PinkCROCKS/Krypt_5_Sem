@@ -25,14 +25,14 @@ add_executable(1lab "labs/main.cpp"
         libs/PRIMARY_TEST/src/primary_tests.cpp
         libs/RSA/src/RSA.cpp
         libs/RSA/include/RSA.h
-        libs/RIJNDEL/include/RIJNDEL.h
-        libs/RIJNDEL/src/RIJNDEL.cpp
+        libs/RIJNDEL/include/RIJNDAEL.h
+        libs/RIJNDEL/src/RIJNDAEL.cpp
         libs/GALUA_FUNCTIONS/src/Galua.cpp
         libs/GALUA_FUNCTIONS/include/Galua.h)
 add_executable(2lab labs/2lab.cpp libs/NUM_FUNCTIONS/src/num_functions.cpp
         libs/PRIMARY_TEST/src/primary_tests.cpp)
 
-add_executable(3lab libs/RIJNDEL/src/RIJNDEL.cpp labs/3lab.cpp)
+add_executable(3lab libs/RIJNDEL/src/RIJNDAEL.cpp labs/3lab.cpp)
 
 target_link_libraries(1lab deal bits_functions)
 target_link_libraries(2lab number_functions primary_tests rsa bits_functions)

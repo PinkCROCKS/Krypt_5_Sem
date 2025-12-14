@@ -1,5 +1,5 @@
-#ifndef CRYPT_RIJNDEL_H
-#define CRYPT_RIJNDEL_H
+#ifndef CRYPT_RIJNDAEL_H
+#define CRYPT_RIJNDAEL_H
 
 #include "../../SymmetricContext/include/SymmetricContext.h"
 #include "../../GALUA_FUNCTIONS/include/Galua.h"
@@ -29,7 +29,7 @@ public:
 
 class RconGenerator {
 private:
-    std::array<std::byte, 14> Rcon;
+    std::array<std::byte, 20> Rcon;
     std::byte mod;
     void initialize_Rcon();
 public:
@@ -75,28 +75,10 @@ private:
     size_t amount_of_rounds;
     std::byte mod;
 public:
-    Rijndael(size_t b_size, const std::byte& mod, const INFO& key) : key(key), mod(mod){
-        block_size = b_size;
-        Sbox_generator = std::make_shared<SboxGenerator>(mod);
-        Rcon_generator = std::make_shared<RconGenerator>(mod);
-        RIJNDAELKeysGenerator generator(Sbox_generator, Rcon_generator);
-        RIJNDAELRound round(Sbox_generator, Rcon_generator, mod);
-        encrypt_round = std::make_shared<RIJNDAELRound>(round);
-        key_generator = std::make_shared<RIJNDAELKeysGenerator>(generator);
-        if (key.size() == 32 || block_size == 32) {
-            amount_of_rounds = 14;
-        } else if (block_size == 24 || key.size() == 24) {
-            amount_of_rounds = 12;
-        } else if (block_size == 16 && key.size() == 16) {
-            amount_of_rounds = 10;
-        } else {
-            throw std::invalid_argument("incorrect block size or key size");
-        }
-        Nb = block_size;
-        round_keys = key_generator->make_round_keys(key, amount_of_rounds, Nb);
-    }
+    Rijndael(size_t b_size, const std::byte& mod, const INFO& key);
+    Rijndael(size_t b_size, size_t number_of_polynom, const INFO& key);
     INFO encrypt(const INFO& data) override;
     INFO decrypt(const INFO& data) override;
 };
 
-#endif //CRYPT_RIJNDEL_H
+#endif //CRYPT_RIJNDAEL_H

@@ -122,7 +122,7 @@ void GaloisFieldService::generate_irreducible_polynoms() {
               << " irreducible polynomials." << std::endl;
 }
 
-void GaloisFieldService::print_irreducible_polynoms() const {
+void GaloisFieldService::print_irreducible_polynoms() {
     std::cout << "Irreducible polynomials of degree 8:" << std::endl;
     std::cout << "=====================================" << std::endl;
     for (size_t i = 0; i < irreducible_polynoms.size(); i++) {
@@ -247,7 +247,7 @@ STATE GaloisFieldService::make_state(const INFO &data, size_t amount_of_bytes_in
     STATE result(4, line);
     for (size_t j = 0; j < amount_of_bytes_in_line; j++){
         for (size_t i = 0; i < 4; i++){
-            result[i][j] = data[j * amount_of_bytes_in_line + i];
+            result[i][j] = data[j * 4 + i];
         }
     }
     return result;
@@ -261,6 +261,13 @@ INFO GaloisFieldService::make_INFO(const STATE& data, size_t amount_of_bytes_in_
         }
     }
     return result;
+}
+
+std::byte GaloisFieldService::take_polynom_by_number(size_t size){
+    if (size >= 30) {
+        throw std::invalid_argument{"There is only 30 polynoms"};
+    }
+    return irreducible_polynoms[size];
 }
 
 void print_state(const STATE &state) {

@@ -24,7 +24,8 @@ private:
 
 public:
     GaloisFieldService();
-    void print_irreducible_polynoms() const;
+    static void print_irreducible_polynoms();
+    static std::byte take_polynom_by_number(size_t size);
     static std::byte add(const std::byte& first, const std::byte& second);
     static std::byte multiply(const std::byte& first, const std::byte& second, const std::byte& mod);
     static std::byte inverse(const std::byte& first, const std::byte& mod);
