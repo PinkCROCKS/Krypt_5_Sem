@@ -44,8 +44,8 @@ int main(){
 //    STATE state{test1, test2, test3, test4};
 
     GaloisFieldService galua;
-//    galua.print_irreducible_polynoms();
-    std::byte AESmod{0xdd};
+    galua.print_irreducible_polynoms();
+    std::byte AESmod{0x1b};
 //    INFO row0{std::byte{0xd4}, std::byte{0xe0}, std::byte{0xb8}, std::byte{0x1e}};
 //    INFO row1{std::byte{0xbf}, std::byte{0xb4}, std::byte{0x41}, std::byte{0x27}};
 //    INFO row2{std::byte{0x5d}, std::byte{0x52}, std::byte{0x11}, std::byte{0x98}};
@@ -59,47 +59,58 @@ int main(){
 //    auto r = GaloisFieldService::mixColumns(state, AESmod);
 //    print_state(r);
 //    print_state(GaloisFieldService::addRoundKey(r, key));
-//    SboxGenerator s(AESmod);
+    SboxGenerator s(AESmod);
+    s.printSbox();
 //    RconGenerator r(AESmod);
 //    RIJNDAELKeysGenerator generator(std::make_shared<SboxGenerator>(s), std::make_shared<RconGenerator>(r));
 //    generator.print_all_round_keys(generator.make_round_keys(key, 10, 16), 128);
-    Rijndael r{32, 14, key};
-    GaloisFieldService::print_irreducible_polynoms();
-    INFO testIV = {std::byte{165}, std::byte{0x23}, std::byte{0x45}, std::byte{0x67},
-              std::byte{0x89}, std::byte{0xAB}, std::byte{0xCD}, std::byte{0xEF}};
-    std::optional<INFO> t(testIV);
-    std::shared_ptr<SymmetricAlgorithm> y = std::make_shared<Rijndael>(r);
-    SymmetricEncryptingContext context(PCBC, PKCS7, t, y);
-    std::filesystem::path inputPath = "opu.mp4";
-    std::filesystem::path encryptedOutput = inputPath.stem().string() + "_encrypted.bin";
-    std::filesystem::path decryptedOutput = inputPath.stem().string() + "_decrypted" + inputPath.extension().string();
-    uintmax_t originalSize = std::filesystem::file_size(inputPath);
-    std::cout << "Размер файла: " << originalSize << " байт ("
-              << originalSize / 1024 / 1024 << " MB)\n";
-
-// Шифрование
-    auto start1 = std::chrono::high_resolution_clock::now();
-    auto temp = context.encrypt(inputPath, encryptedOutput);
-    temp.get();
-    auto end1 = std::chrono::high_resolution_clock::now();
-    auto encryptTime = std::chrono::duration_cast<std::chrono::milliseconds>(end1 - start1);
-    std::cout << "Время шифрования: " << encryptTime.count() << " мс\n";
-
-// Дешифрование
-    auto start2 = std::chrono::high_resolution_clock::now();
-    context.decrypt(encryptedOutput, decryptedOutput).get();
-    auto end2 = std::chrono::high_resolution_clock::now();
-    auto decryptTime = std::chrono::duration_cast<std::chrono::milliseconds>(end2 - start2);
-    std::cout << "Время дешифрования: " << decryptTime.count() << " мс\n";
-
-// Проверяем размеры
-    if (std::filesystem::exists(encryptedOutput)) {
-        std::cout << "Размер зашифрованного файла: "
-                  << std::filesystem::file_size(encryptedOutput) << " байт\n";
-    }
-    if (std::filesystem::exists(decryptedOutput)) {
-        std::cout << "Размер дешифрованного файла: "
-                  << std::filesystem::file_size(decryptedOutput) << " байт\n";
-    }
+//    Rijndael r{16, 17, key2};
+//
+//    INFO testIV = {std::byte{165}, std::byte{0x23}, std::byte{0x45}, std::byte{0x67},
+//              std::byte{0x89}, std::byte{0xAB}, std::byte{0xCD}, std::byte{0xEF}};
+//    std::optional<INFO> t(testIV);
+//    std::shared_ptr<SymmetricAlgorithm> y = std::make_shared<Rijndael>(r);
+//    SymmetricEncryptingContext context(Random_Delta, ISO_10126, t, y);
+//    std::filesystem::path inputPath = "test.txt";
+//    std::filesystem::path encryptedOutput = inputPath.stem().string() + "_encrypted.bin";
+//    std::filesystem::path decryptedOutput = inputPath.stem().string() + "_decrypted" + inputPath.extension().string();
+//    uintmax_t originalSize = std::filesystem::file_size(inputPath);
+//    std::cout << "Размер файла: " << originalSize << " байт ("
+//              << originalSize / 1024 / 1024 << " MB)\n";
+//
+//// Шифрование
+//    auto start1 = std::chrono::high_resolution_clock::now();
+//    auto temp = context.encrypt(inputPath, encryptedOutput);
+//    temp.get();
+//    auto end1 = std::chrono::high_resolution_clock::now();
+//    auto encryptTime = std::chrono::duration_cast<std::chrono::milliseconds>(end1 - start1);
+//    std::cout << "Время шифрования: " << encryptTime.count() << " мс\n";
+//
+//// Дешифрование
+//    auto start2 = std::chrono::high_resolution_clock::now();
+//    context.decrypt(encryptedOutput, decryptedOutput).get();
+//    auto end2 = std::chrono::high_resolution_clock::now();
+//    auto decryptTime = std::chrono::duration_cast<std::chrono::milliseconds>(end2 - start2);
+//    std::cout << "Время дешифрования: " << decryptTime.count() << " мс\n";
+//
+//// Проверяем размеры
+//    if (std::filesystem::exists(encryptedOutput)) {
+//        std::cout << "Размер зашифрованного файла: "
+//                  << std::filesystem::file_size(encryptedOutput) << " байт\n";
+//    }
+//    if (std::filesystem::exists(decryptedOutput)) {
+//        std::cout << "Размер дешифрованного файла: "
+//                  << std::filesystem::file_size(decryptedOutput) << " байт\n";
+//    }
+//
+//    std::byte poly{189};
+//    INFO p = {poly};
+//    bit_op::print_permissions(p);
+//    auto u = GaloisFieldService::inverse(poly, AESmod);
+//    bit_op::print_permissions({u});
+//    bit_op::print_permissions({GaloisFieldService::multiply(poly, u, AESmod)});
+//
+//    RconGenerator generator(AESmod);
+//    generator.print_Rcon();
     return 0;
 }

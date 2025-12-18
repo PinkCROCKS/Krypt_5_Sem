@@ -107,34 +107,3 @@ BOOSTED_INT jakobi_symbol(const BOOSTED_INT& a, const BOOSTED_INT& p){
         return jakobi_symbol(a % p, p);
     }
 }
-
-BOOSTED_INT jacobi_symbol_by_artemiy(const boost::multiprecision::cpp_int &a,
-                                                                    const boost::multiprecision::cpp_int &n) {
-    if (n <= 0 || n % 2 == 0) {
-        throw std::invalid_argument("Jacobi symbol is defined only for positive odd n");
-    }
-
-    boost::multiprecision::cpp_int x = a % n;
-    boost::multiprecision::cpp_int y = n;
-    int j = 1;
-
-    while (x != 0) {
-        while (x % 2 == 0) {
-            x /= 2;
-            boost::multiprecision::cpp_int r = y % 8;
-            if (r == 3 || r == 5) {
-                j = -j;
-            }
-        }
-
-        std::swap(x, y);
-
-        if (x % 4 == 3 && y % 4 == 3) {
-            j = -j;
-        }
-
-        x %= y;
-    }
-
-    return (y == 1) ? j : 0;
-}

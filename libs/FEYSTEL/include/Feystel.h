@@ -1,7 +1,7 @@
 #ifndef INC_1_LAB_FEYSTEL_H
 #define INC_1_LAB_FEYSTEL_H
 
-#include "../../SymmetricContext/include/SymmetricContext.h"
+#include "SymmetricContext.h"
 
 const size_t feystelNetDataSize = 8;
 

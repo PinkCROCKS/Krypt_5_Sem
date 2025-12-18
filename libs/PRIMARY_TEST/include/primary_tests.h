@@ -12,6 +12,12 @@ typedef enum primeState{
     Continue
 };
 
+typedef enum Ptests{
+    fermaTest,
+    soloveyShyrassenaTest,
+    millerRabinTest
+};
+
 class PrimeTestMethod{
 public:
     virtual double is_prime(const BOOSTED_INT& number, double probability) = 0;

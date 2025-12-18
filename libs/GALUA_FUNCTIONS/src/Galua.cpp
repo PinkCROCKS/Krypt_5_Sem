@@ -84,10 +84,6 @@ std::byte GaloisFieldService::power(const std::byte &base, const std::byte &expo
 }
 
 std::byte GaloisFieldService::inverse(const std::byte &element, const std::byte &mod) {
-//    if (element == std::byte{0}) {
-//        throw std::invalid_argument("Zero element has no inverse");
-//    }
-
     if (!is_irreducible(mod)) {
         throw std::invalid_argument("Modulus is reducible");
     }
@@ -122,6 +118,60 @@ void GaloisFieldService::generate_irreducible_polynoms() {
               << " irreducible polynomials." << std::endl;
 }
 
+void GaloisFieldService::print_irreducible_polynom(size_t size){
+    std::cout << "Usseble polynom = ";
+    uint8_t val = static_cast<uint8_t>(irreducible_polynoms[size]);
+    std::bitset<8> bits(val);
+    std::cout << "x^8 + ";
+    bool first_term = true;
+    for (int j = 7; j >= 0; j--) {
+        if (bits[j]) {
+            if (!first_term) std::cout << " + ";
+            if (j == 0) {
+                std::cout << "1";
+            } else if (j == 1) {
+                std::cout << "x";
+            } else {
+                std::cout << "x^" << j;
+            }
+            first_term = false;
+        }
+    }
+
+    if (first_term) {
+        std::cout << "0";
+    }
+
+    std::cout << std::endl;
+}
+
+void GaloisFieldService::print_irreducible_polynom(const std::byte& current){
+    std::cout << "Usseble polynom = ";
+    uint8_t val = static_cast<uint8_t>(current);
+    std::bitset<8> bits(val);
+    std::cout << "x^8 + ";
+    bool first_term = true;
+    for (int j = 7; j >= 0; j--) {
+        if (bits[j]) {
+            if (!first_term) std::cout << " + ";
+            if (j == 0) {
+                std::cout << "1";
+            } else if (j == 1) {
+                std::cout << "x";
+            } else {
+                std::cout << "x^" << j;
+            }
+            first_term = false;
+        }
+    }
+
+    if (first_term) {
+        std::cout << "0";
+    }
+
+    std::cout << std::endl;
+}
+
 void GaloisFieldService::print_irreducible_polynoms() {
     std::cout << "Irreducible polynomials of degree 8:" << std::endl;
     std::cout << "=====================================" << std::endl;
@@ -132,7 +182,7 @@ void GaloisFieldService::print_irreducible_polynoms() {
                   << static_cast<int>(val) << std::dec << " = ";
 
         std::bitset<8> bits(val);
-        std::cout << "x⁸ + ";
+        std::cout << "x^8 + ";
         bool first_term = true;
         for (int j = 7; j >= 0; j--) {
             if (bits[j]) {
@@ -154,6 +204,7 @@ void GaloisFieldService::print_irreducible_polynoms() {
 
         std::cout << std::endl;
     }
+    std::cout << "=====================================" << std::endl;
 }
 
 GaloisFieldService::GaloisFieldService() {
@@ -163,7 +214,7 @@ GaloisFieldService::GaloisFieldService() {
 std::byte GaloisFieldService::cyclic_shift_left(const std::byte &first, size_t amount) {
     uint8_t value = static_cast<uint8_t>(first);
     amount %= 8;
-    uint8_t result = (value << amount) | (value >> (8 - amount));  // ИСПРАВЛЕНО!
+    uint8_t result = (value << amount) | (value >> (8 - amount));
     return static_cast<std::byte>(result);
 }
 

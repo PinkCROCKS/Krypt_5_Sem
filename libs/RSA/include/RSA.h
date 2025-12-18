@@ -9,12 +9,6 @@
 #include "../../BIT_FUNCTIONS/include/Byte.h"
 #include "future"
 
-typedef enum Ptests{
-    fermaTest,
-    soloveyShyrassenaTest,
-    millerRabinTest
-};
-
 class RSAKeyGenerator{
 private:
     const BOOSTED_INT e = 65537;
