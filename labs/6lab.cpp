@@ -21,7 +21,7 @@ int main(){
             std::byte{0x10}, std::byte{0x11}, std::byte{0x12}, std::byte{0x13},
             std::byte{0x14}, std::byte{0x15}, std::byte{0x16}, std::byte{0x17},
     };
-    RC6 rc(key2, 32, 20);
+    RC6 rc(key2, 64, 20);
 //    auto y = rc.encrypt(data);
 //    auto t = rc.decrypt(y);
 //    bit_op::print_permissions(data);

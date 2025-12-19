@@ -54,6 +54,43 @@ bool RSAKeyGenerator::check_vinner(const BOOSTED_INT& d, const BOOSTED_INT &p, c
     return fast_pow_mod(d, 4, 0) >= ((p * q) / 81);
 }
 
+std::pair<std::pair<BOOSTED_INT, BOOSTED_INT>,
+        std::pair<BOOSTED_INT, BOOSTED_INT>>
+RSAKeyGenerator::generate_bad_keys() {
+    BOOSTED_INT p;
+    BOOSTED_INT q;
+    boost::random::random_device rd;
+    BOOSTED_INT N, phi_N;
+    boost::random::uniform_int_distribution<BOOSTED_INT> dist(0, (BOOSTED_INT{1} << length));
+    BOOSTED_INT e{"1073780833"};
+    while(true) {
+        while (true) {
+            p = dist(rd);
+            if (test->is_prime(p, min_probability) >= min_probability) {
+                break;;
+            }
+        }
+        while (true) {
+            q = dist(rd);
+            if(test->is_prime(q, min_probability) >= min_probability) {
+                break;
+            }
+        }
+        N = p * q;
+        phi_N = (p - 1) * (q - 1);
+
+        auto x = extensioned_Evklid_Algorithm(e, phi_N);
+        auto d = x[1];
+        while(d < 0) {
+            d += phi_N;
+        }
+        d %= phi_N;
+        if(gcd(phi_N, e) == 1) {
+            return {{e, N}, {d, N}};
+        }
+    }
+}
+
 RSA::RSA(Ptests test_type, double needed_probability, size_t length) : length(length){
     generator = std::make_shared<RSAKeyGenerator>(test_type, needed_probability, length);
     auto i = generator->generate_keys();
@@ -271,3 +308,26 @@ INFO RSA::remove_padding(const INFO &padded_data) {
 }
 
 
+BOOSTED_INT wiener_attack(const std::pair<BOOSTED_INT, BOOSTED_INT> &public_key) {
+    std::vector<BOOSTED_INT> contiened_fractions = finding_continued_simple_fractions(public_key.first, public_key.second);
+    BOOSTED_INT e = public_key.first;
+    BOOSTED_INT N = public_key.second;
+
+    for(const auto & factor : finding_convergent_series_from_continuous_simple_fraction(contiened_fractions)) {
+        auto [k, d] = factor;
+        if (d == 0) {
+            break;
+        }
+        if(k == 0) {
+            continue;
+        }
+        BOOSTED_INT phi_N = (e * d - 1) / k;
+        // std::cout << "K: " << k << " D: "<< d << " N: " << N << " phiN: " << phi_N << std::endl;
+        auto [p, q] = solving_quadratic_equation(1, -(N - phi_N + 1), N);
+        // std::cout << "K: " << k << " D: "<< d << " N: " << N << " phiN: " << phi_N << " P*Q: " << p * q << " P: " << p << " Q: " << q << std::endl;
+        if (p * q == N) {
+            return d;
+        }
+    }
+    return 0;
+}

@@ -321,6 +321,31 @@ std::byte GaloisFieldService::take_polynom_by_number(size_t size){
     return irreducible_polynoms[size];
 }
 
+void GaloisFieldService::print_polynom(const std::byte &current) {
+    uint8_t val = static_cast<uint8_t>(current);
+    std::bitset<8> bits(val);
+    bool first_term = true;
+    for (int j = 7; j >= 0; j--) {
+        if (bits[j]) {
+            if (!first_term) std::cout << " + ";
+            if (j == 0) {
+                std::cout << "1";
+            } else if (j == 1) {
+                std::cout << "x";
+            } else {
+                std::cout << "x^" << j;
+            }
+            first_term = false;
+        }
+    }
+
+    if (first_term) {
+        std::cout << "0";
+    }
+
+    std::cout << std::endl;
+}
+
 void print_state(const STATE &state) {
     size_t num_rows = state.size();
     size_t num_cols = state[0].size();

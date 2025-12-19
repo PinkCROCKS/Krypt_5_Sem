@@ -107,3 +107,49 @@ BOOSTED_INT jakobi_symbol(const BOOSTED_INT& a, const BOOSTED_INT& p){
         return jakobi_symbol(a % p, p);
     }
 }
+
+std::vector<BOOSTED_INT>
+finding_continued_simple_fractions(const BOOSTED_INT &u, const BOOSTED_INT &v) {
+    BOOSTED_INT x = u;
+    BOOSTED_INT y = v;
+    std::vector<BOOSTED_INT> res;
+    while (y > 0) {
+        BOOSTED_INT tmp = y;
+        res.push_back(x / y);
+        y = x % y;
+        x = tmp;
+    }
+    return res;
+}
+
+std::vector<std::pair<BOOSTED_INT, BOOSTED_INT>>
+finding_convergent_series_from_continuous_simple_fraction(const std::vector<BOOSTED_INT> &factors) {
+    BOOSTED_INT prev_h = 1, prev_prev_h = 0;
+    BOOSTED_INT prev_k = 0, prev_prev_k = 1;
+
+    std::vector<std::pair<BOOSTED_INT, BOOSTED_INT>> res;
+    for(const auto & a : factors) {
+        BOOSTED_INT h = a * prev_h + prev_prev_h;
+        BOOSTED_INT k = a * prev_k + prev_prev_k;
+        prev_prev_h = prev_h;
+        prev_prev_k = prev_k;
+        prev_h = h;
+        prev_k = k;
+        res.push_back({h, k});
+    }
+    return res;
+}
+
+std::pair<BOOSTED_INT, BOOSTED_INT>
+solving_quadratic_equation(const BOOSTED_INT &a, const BOOSTED_INT &b, const BOOSTED_INT &c) {
+    if(a == 0) {
+        return {-c / b, 0};
+    }
+    auto d = b * b - 4 * a * c;
+    if(d < 0) {
+        return {0, 0};
+    }
+    auto sqrt_d = boost::multiprecision::sqrt(d);
+    return {(-b - sqrt_d) / (2 * a), (-b + sqrt_d) / (2 * a)};
+}
+

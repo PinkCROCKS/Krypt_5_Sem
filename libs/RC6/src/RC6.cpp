@@ -18,10 +18,7 @@ BOOSTED_INT RC6KeysGenerator::Q_generator(size_t w) {
 BOOSTED_INT RC6KeysGenerator::round_to_boosted_int(boost::multiprecision::cpp_dec_float_50 number) {
     auto s = boost::multiprecision::round(number);
     auto n = static_cast<BOOSTED_INT>(s);
-
-    // ОШИБКА: if(n & 1 == 0) - приоритет операторов неверный!
-    // Нужно: if((n & 1) == 0)
-    if((n & 1) == 0) {  // ИСПРАВЛЕНО!
+    if((n & 1) == 0) {
         if (number > s) {
             n += 1;
         } else {
@@ -77,39 +74,21 @@ std::vector<INFO> RC6KeysGenerator::make_round_keys(const INFO &key, size_t amou
 RC6KeysGenerator::RC6KeysGenerator(size_t w, size_t b) : w(w), b(b) {}
 
 BOOSTED_INT RC6KeysGenerator::cycling_rotate_left(const BOOSTED_INT &number, size_t shift, size_t width) {
-    // Обработка крайних случаев
     if (width == 0) return 0;
-
-    // Нормализуем сдвиг
     shift = shift % width;
     if (shift == 0) {
-        // Обрезаем число до width бит
         BOOSTED_INT mask = (BOOSTED_INT(1) << width) - 1;
         return number & mask;
     }
-
-    // Создаем маску
     BOOSTED_INT mask = (BOOSTED_INT(1) << width) - 1;
-
-    // Берем только width бит из исходного числа
     BOOSTED_INT n = number & mask;
-
-    // Циклический сдвиг влево
-    // 1. Сдвигаем влево на shift
     BOOSTED_INT shifted = n << shift;
-
-    // 2. Берем биты, которые "вышли" за границы width
     BOOSTED_INT overflow = shifted >> width;
-
-    // 3. Обрезаем shifted до width бит
     shifted = shifted & mask;
-
-    // 4. Добавляем overflow
     return (shifted | overflow) & mask;
 }
 
 BOOSTED_INT RC6KeysGenerator::cycling_rotate_right(const BOOSTED_INT &number, size_t shift, size_t width) {
-    // Обработка крайних случаев
     if (width == 0) return 0;
 
     // Нормализуем сдвиг
@@ -205,19 +184,12 @@ size_t RC6::log2_w(size_t w) {
 }
 
 std::vector<std::byte> RC6::decrypt(const INFO &data) {
-    // Проверяем размер данных
     size_t expected_size = 4 * (w / 8); // 4 слова по w/8 байт каждое
     if (data.size() != expected_size) {
         throw std::invalid_argument("Неверный размер блока данных");
     }
-
-    // Конвертируем данные в 4 слова A, B, C, D
     BOOSTED_INT mask = (BOOSTED_INT(1) << w) - 1;
-
-    // Извлекаем слова из блока данных
     BOOSTED_INT A = 0, B = 0, C = 0, D = 0;
-
-    // Преобразуем байты в слова
     size_t bytes_per_word = w / 8;
     for (size_t i = 0; i < bytes_per_word; ++i) {
         A = (A << 8) | BOOSTED_INT(data[i]);
@@ -225,77 +197,50 @@ std::vector<std::byte> RC6::decrypt(const INFO &data) {
         C = (C << 8) | BOOSTED_INT(data[i + 2 * bytes_per_word]);
         D = (D << 8) | BOOSTED_INT(data[i + 3 * bytes_per_word]);
     }
-
-    // Применяем маску
     A &= mask;
     B &= mask;
     C &= mask;
     D &= mask;
-
-    // Обратное финальное преобразование
     A = (A - S_b[2 * amount_of_rounds + 2]) & mask;
     C = (C - S_b[2 * amount_of_rounds + 3]) & mask;
-
-    // Обратные раунды
     size_t lgw = log2_w(w);
 
     for (size_t i = amount_of_rounds; i >= 1; --i) {
-        // Обратный циклический сдвиг слов
         BOOSTED_INT temp = D;
         D = C;
         C = B;
         B = A;
         A = temp;
-
-        // Вычисляем t и u (такие же, как при шифровании)
         BOOSTED_INT t = (B * (2 * B + 1)) & mask;
         t = keys_generator.cycling_rotate_left(t, lgw, w);
-
         BOOSTED_INT u = (D * (2 * D + 1)) & mask;
         u = keys_generator.cycling_rotate_left(u, lgw, w);
-
-        // Обратные преобразования
         C = (C - S_b[2 * i + 1]) & mask;
         C = keys_generator.cycling_rotate_right(C,
                                                 static_cast<size_t>(t & mask), w) ^ u;
-
         A = (A - S_b[2 * i]) & mask;
         A = keys_generator.cycling_rotate_right(A,
                                                 static_cast<size_t>(u & mask), w) ^ t;
     }
-
-    // Обратное начальное преобразование
     D = (D - S_b[1]) & mask;
     B = (B - S_b[0]) & mask;
-
-    // Формируем результат
     std::vector<std::byte> result(expected_size);
-
-    // Преобразуем слова обратно в байты
     for (int i = bytes_per_word - 1; i >= 0; --i) {
         result[i] = std::byte(static_cast<unsigned char>((A >> (8 * (bytes_per_word - 1 - i))) & 0xFF));
         result[i + bytes_per_word] = std::byte(static_cast<unsigned char>((B >> (8 * (bytes_per_word - 1 - i))) & 0xFF));
         result[i + 2 * bytes_per_word] = std::byte(static_cast<unsigned char>((C >> (8 * (bytes_per_word - 1 - i))) & 0xFF));
         result[i + 3 * bytes_per_word] = std::byte(static_cast<unsigned char>((D >> (8 * (bytes_per_word - 1 - i))) & 0xFF));
     }
-
     return result;
 }
 
 std::vector<std::byte> RC6::encrypt(const INFO &data) {
-    // Проверяем размер данных
     size_t expected_size = 4 * (w / 8); // 4 слова по w/8 байт каждое
     if (data.size() != expected_size) {
         throw std::invalid_argument("Неверный размер блока данных");
     }
-
-    // Конвертируем данные в 4 слова A, B, C, D
     BOOSTED_INT mask = (BOOSTED_INT(1) << w) - 1;
-
-    // Извлекаем слова из блока данных
     BOOSTED_INT A = 0, B = 0, C = 0, D = 0;
-
-    // Преобразуем байты в слова
     size_t bytes_per_word = w / 8;
     for (size_t i = 0; i < bytes_per_word; ++i) {
         A = (A << 8) | BOOSTED_INT(data[i]);
@@ -303,59 +248,37 @@ std::vector<std::byte> RC6::encrypt(const INFO &data) {
         C = (C << 8) | BOOSTED_INT(data[i + 2 * bytes_per_word]);
         D = (D << 8) | BOOSTED_INT(data[i + 3 * bytes_per_word]);
     }
-
-    // Применяем маску
     A &= mask;
     B &= mask;
     C &= mask;
     D &= mask;
-
-    // Начальное преобразование
     B = (B + S_b[0]) & mask;
     D = (D + S_b[1]) & mask;
-
-    // Основные раунды
     size_t lgw = log2_w(w);
 
     for (size_t i = 1; i <= amount_of_rounds; ++i) {
-        // Вычисляем t и u
         BOOSTED_INT t = (B * (2 * B + 1)) & mask;
         t = keys_generator.cycling_rotate_left(t, lgw, w);
-
         BOOSTED_INT u = (D * (2 * D + 1)) & mask;
         u = keys_generator.cycling_rotate_left(u, lgw, w);
-
-        // Обновляем A и C
-        BOOSTED_INT A_rot = keys_generator.cycling_rotate_left(A ^ t,
-                                                               static_cast<size_t>(u & mask), w);
+        BOOSTED_INT A_rot = keys_generator.cycling_rotate_left(A ^ t,static_cast<size_t>(u & mask), w);
         A = (A_rot + S_b[2 * i]) & mask;
-
-        BOOSTED_INT C_rot = keys_generator.cycling_rotate_left(C ^ u,
-                                                               static_cast<size_t>(t & mask), w);
+        BOOSTED_INT C_rot = keys_generator.cycling_rotate_left(C ^ u,static_cast<size_t>(t & mask), w);
         C = (C_rot + S_b[2 * i + 1]) & mask;
-
-        // Циклический сдвиг слов (A, B, C, D) = (B, C, D, A)
         BOOSTED_INT temp = A;
         A = B;
         B = C;
         C = D;
         D = temp;
     }
-
-    // Финальное преобразование
     A = (A + S_b[2 * amount_of_rounds + 2]) & mask;
     C = (C + S_b[2 * amount_of_rounds + 3]) & mask;
-
-    // Формируем результат
     std::vector<std::byte> result(expected_size);
-
-    // Преобразуем слова обратно в байты
     for (int i = bytes_per_word - 1; i >= 0; --i) {
         result[i] = std::byte(static_cast<unsigned char>((A >> (8 * (bytes_per_word - 1 - i))) & 0xFF));
         result[i + bytes_per_word] = std::byte(static_cast<unsigned char>((B >> (8 * (bytes_per_word - 1 - i))) & 0xFF));
         result[i + 2 * bytes_per_word] = std::byte(static_cast<unsigned char>((C >> (8 * (bytes_per_word - 1 - i))) & 0xFF));
         result[i + 3 * bytes_per_word] = std::byte(static_cast<unsigned char>((D >> (8 * (bytes_per_word - 1 - i))) & 0xFF));
     }
-
     return result;
 }

@@ -40,16 +40,7 @@ private:
     std::shared_ptr<DEAlNetwork> network;
     size_t amount_of_rounds;
 
-    size_t how_many_rounds(){
-        if (key.size() == 16 || key.size() == 24){
-            return 6;
-        }
-        if (key.size() == 32){
-            return 8;
-        } else{
-            throw std::invalid_argument("INcorrect Key size for DEAL");
-        }
-    }
+    size_t how_many_rounds();
 public:
     DEAl(const INFO& key);
     INFO encrypt(const INFO& data) override;

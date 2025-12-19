@@ -45,7 +45,7 @@ int main(){
 
     GaloisFieldService galua;
     galua.print_irreducible_polynoms();
-    std::byte AESmod{0x1b};
+    std::byte AESmod{0x65};
 //    INFO row0{std::byte{0xd4}, std::byte{0xe0}, std::byte{0xb8}, std::byte{0x1e}};
 //    INFO row1{std::byte{0xbf}, std::byte{0xb4}, std::byte{0x41}, std::byte{0x27}};
 //    INFO row2{std::byte{0x5d}, std::byte{0x52}, std::byte{0x11}, std::byte{0x98}};
@@ -61,6 +61,9 @@ int main(){
 //    print_state(GaloisFieldService::addRoundKey(r, key));
     SboxGenerator s(AESmod);
     s.printSbox();
+//    std::byte odin{2};
+//    auto i = GaloisFieldService::inverse(odin, AESmod);
+//    GaloisFieldService::print_polynom(i);
 //    RconGenerator r(AESmod);
 //    RIJNDAELKeysGenerator generator(std::make_shared<SboxGenerator>(s), std::make_shared<RconGenerator>(r));
 //    generator.print_all_round_keys(generator.make_round_keys(key, 10, 16), 128);
@@ -112,5 +115,11 @@ int main(){
 //
 //    RconGenerator generator(AESmod);
 //    generator.print_Rcon();
+
+//    std::byte f{0xA3};
+//    std::byte t{0x97};
+//    GaloisFieldService::print_polynom(f);
+//    GaloisFieldService::print_polynom(t);
+//    GaloisFieldService::print_polynom(GaloisFieldService::inverse(f, AESmod));
     return 0;
 }

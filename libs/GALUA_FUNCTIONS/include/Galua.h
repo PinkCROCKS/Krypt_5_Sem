@@ -27,6 +27,7 @@ public:
     static void print_irreducible_polynoms();
     static void print_irreducible_polynom(size_t size);
     static void print_irreducible_polynom(const std::byte& current);
+    static void print_polynom(const std::byte& current);
     static std::byte take_polynom_by_number(size_t size);
     static std::byte add(const std::byte& first, const std::byte& second);
     static std::byte multiply(const std::byte& first, const std::byte& second, const std::byte& mod);

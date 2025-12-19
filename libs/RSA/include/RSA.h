@@ -5,9 +5,13 @@
 #include <memory>
 #include <filesystem>
 #include <optional>
-#include "../../PRIMARY_TEST/include/primary_tests.h"
-#include "../../BIT_FUNCTIONS/include/Byte.h"
+#include "primary_tests.h"
+#include "Byte.h"
 #include "future"
+#include "boost/random/random_device.hpp"
+#include "boost/random.hpp"
+#include "num_functions.h"
+#include "primary_tests.h"
 
 class RSAKeyGenerator{
 private:
@@ -23,6 +27,8 @@ private:
 public:
     RSAKeyGenerator(Ptests prime_test, double needed_probability, size_t bit_length);
     std::pair<std::pair<BOOSTED_INT, BOOSTED_INT>, std::pair<BOOSTED_INT, BOOSTED_INT>> generate_keys();
+    std::pair<std::pair<boost::multiprecision::cpp_int, boost::multiprecision::cpp_int>,
+            std::pair<boost::multiprecision::cpp_int, boost::multiprecision::cpp_int>> generate_bad_keys();
 };
 
 class RSA {
@@ -46,5 +52,7 @@ public:
     INFO make_padding(const INFO& data, size_t size);
     INFO remove_padding(const INFO& data);
 };
+
+BOOSTED_INT wiener_attack(const std::pair<boost::multiprecision::cpp_int, boost::multiprecision::cpp_int> & public_key);
 
 #endif //CRYPT_RSA_H

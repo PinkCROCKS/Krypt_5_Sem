@@ -20,6 +20,7 @@ void SboxGenerator::initialize_Sbox() {
         std::byte current{static_cast<unsigned char>(i)};
         auto b = GaloisFieldService::inverse(current, mod);
         auto sum = GaloisFieldService::add(b, GaloisFieldService::cyclic_shift_left(b, 1));
+        bit_op::print_permissions({sum});
         sum = GaloisFieldService::add(sum, GaloisFieldService::cyclic_shift_left(b, 2));
         sum = GaloisFieldService::add(sum, GaloisFieldService::cyclic_shift_left(b, 3));
         sum = GaloisFieldService::add(sum, GaloisFieldService::cyclic_shift_left(b, 4));
